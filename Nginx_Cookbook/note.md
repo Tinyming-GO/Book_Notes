@@ -16,7 +16,7 @@
 
 使用 `NGINX` 的 `HTTP` 模块，将请求分发到有 `upstream` 块级指令代理的 `HTTP` 服务器集群，实现负载均衡：
 
-```
+```nginx
 upstream backend {
     server 10.10.12.45:80 weight=1;
     server app.example.com:80 weight=2;
@@ -50,7 +50,7 @@ server指令接收` UNIX 套接字`、`IP 地址`或 `FQDN`(Fully Qualified Doma
 
 在 NGINX 的 `stream` 模块内使用 `upstream` 块级指令实现多台 `TCP` 服务器负载：
 
-```
+```nginx
 stream {
     upstream mysql_read {
         server read1.example.com:3306 weight=5;
@@ -82,7 +82,7 @@ TCP 负载均衡在 stream 模块中配置实现。stream 模块类似于 http �
 
 使用 NGINX 提供的其它负载均衡算法，如：`最少连接数(least connections)`、`最短响应时间(leaest time)`、`通用散列算法(generic hash)`或 `IP 散列算法(IP hash)`：
 
-```
+```nginx
 upstream backend {
     least_conn;
     server backend.example.com;
@@ -148,7 +148,7 @@ NGINX 服务器提供的另一个负载均衡算法。它会将访问请求分�
 
 在 server 块级指令中 使用 health_check 简单指令，对被代理服务器进行健康检测:
 
-```
+```nginx
 stream {
     server {
         listen 3306;
@@ -222,7 +222,7 @@ http {
 
 使用 proxy_cache_path 指令为待缓存定义内容缓存区域的共享内存及缓存路径：
 
-```
+```nginx
 proxy_cache_path /var/nginx/cache
             keys\_zone=CACHE:60m
 
@@ -254,7 +254,7 @@ inactive 参数用于控制最后一次使用缓存选项的时间，超过这�
 
 通过一条单独的 `proxy_cache_key` 指令，以变量名的形式定义缓存命中和丢弃的规则。
 
-```
+```nginx
 proxy_cache_key "$host$request_uri $cookie_user";
 ```
 
@@ -276,7 +276,7 @@ proxy_cache_key 默认设置是 "$scheme$proxy_host $request_uri"。默认设置
 
 将 `proxy_cache_passby` 指令，设置称非空值或非 0。一种途径是，在 location 块级指令中设置一个值等于 1 的 proxy_cache_passby 指令：
 
-```
+```nginx
 proxy_cache_bypass $http_cache_bypass;
 ```
 
@@ -296,7 +296,7 @@ proxy_cache_bypass $http_cache_bypass;
 
 使用客户端缓存控制消息头：
 
-```
+```nginx
 location ~* .(css|js)$ {
     expires 1y;
 
@@ -324,7 +324,7 @@ location ~* .(css|js)$ {
 
 NGINX stream 模块实现 UDP 服务器的负载均衡，作为 UDP 服务器的代理的 upstream 块级指令被定义称使用 UDP 协议:
 
-```
+```nginx
 stream {
     upstream ntp {
 
@@ -364,7 +364,7 @@ UDP 负载均衡同 TCP 负载均衡一样集成在 stream 模块内，并且它
 
 对 UDP 负载均衡配置进行健康检测，确保只对正常运行的 UDP 服务器发送数据报文：
 
-```
+```nginx
 upstream ntp {
     server ntp1.example.com:123 max\_fails=3 fail\_timeout=3s;
     server ntp2.example.com:123 max\_fails=3 fail\_timeout=3s;
@@ -393,7 +393,7 @@ upstream ntp {
 
 使用 HTTP 的 access 模块，实现对受保护资源的访问控制：
 
-```
+```nginx
 location /admin/ {
     deny 10.0.0.1;
     allow 10.0.0.0/20;
@@ -419,7 +419,7 @@ location /admin/ {
 
 通过对不同请求方法设置对应的 HTTP 消息头实现跨域资源共享：
 
-```
+```nginx
 map $request_method $cors_method {
     OPTIONS 11;
     GET 1;
@@ -474,7 +474,7 @@ server {
 
 使用 `limit_conn_zone` 指令构建存储当前连接数的内存区域；然后，使用 `limit_conn` 指令设置支持的连接数：
 
-```
+```nginx
 http {
     limit\_conn\_zone $binary\_remote\_addr zone=limitbyaddr:10m;
     limit\_conn\_status 429;
@@ -503,7 +503,7 @@ http {
 
 利用 rate-limiting 模块实现对请求限速：
 
-```
+```nginx
 http {
     limit\_req\_zone $binary\_remote\_addr zone=limitbyaddr:10m rate=1r/s;
     limit\_req\_status 429;
@@ -532,7 +532,7 @@ rate-limiting 模块在项目中非常有用，通过防止瞬间爆发的请求
 
 使用 NGINX 服务器的 limit_rate 和 limit_rate_after 指令实现客户端响应速度：
 
-```
+```nginx
 location /download/ {
     limit\_rate\_after 10m;
     limit\_rate 1m;
@@ -559,7 +559,7 @@ limit_rate_after 和 limit_rate 使 NGINX 能够以您指定的方式在所有�
 
 启用 ngx_http_ssl_module 或 ngx_stream_ssl_module 其中之一的 NGINX SSL 模块对数据进行加密：
 
-```
+```nginx
 http {
     \# All directives used below are also valid in stream
     server {
@@ -590,7 +590,7 @@ http {
 
 使用 http 模块的 ssl 指令构建具体的 SSL 通信规则:
 
-```
+```nginx
 location / {
     proxy\_pass https://upstream.example.com;
     proxy\_ssl\_verify on;
@@ -619,7 +619,7 @@ HTTP proxy 模块的指令繁多，如果需要启用安全传输功能，至少
 
 通过使用 rewrite 重写将所有 HTTP 请求重定向至 HTTPS:
 
-```
+```nginx
 server {
     listen 80 default\_server;
     listen \[::\]:80 default\_server;
@@ -644,7 +644,7 @@ server 块级指令配置了用于监听所有 IPv4 和 IPv6 地址的 80 端口
 
 通过设置 Strict-Transport-Security 响应头不信息，启用 HTTP Strict Transport Security 策略，告知浏览器不支持 HTTP 请求:
 
-```
+```nginx
 add_header Strict-Transport-Security max-age=31536000;
 ```
 
@@ -670,7 +670,7 @@ add_header Strict-Transport-Security max-age=31536000;
 
 配置访问日志格式：
 
-```
+```nginx
 http {
     log_format geoproxy
     '[$time_local] $remote_addr '
@@ -692,7 +692,7 @@ http {
 
 此日志配置呈现的日志条目如下所示：
 
-```
+```nginx
 [25/Nov/2016:16:20:42 +0000] 10.0.1.16 192.168.0.122 Derek
 GET HTTP/1.1 http www.example.com / 200 0.001 370 USA MI
 "Ann Arbor" - 200 0.001 "-" "curl/7.47.0"
@@ -700,7 +700,7 @@ GET HTTP/1.1 http www.example.com / 200 0.001 370 USA MI
 
 如果需要使用这个日志配置，需要结合使用 access_log 指令，access_log 指令接收一个日志目录和使用的配置名作为参数：
 
-```
+```nginx
 server {
     access_log /var/log/nginx/access.log geoproxy;
     ...
@@ -723,7 +723,7 @@ NGINX 中的日志模块允许您为不同的场景配置日志格式，以便�
 
 使用 error_log 指令定义错误日志目录及记录错误日志的等级:
 
-```
+```nginx
 error_log /var/log/nginx/error.log warn;
 ```
 
@@ -743,7 +743,7 @@ error_log 指令配置时需要一个必选的日志目录和一个可选的错�
 
 在使用 error_log 和 access_log 指令时，将日志发送至 syslog 监听器:
 
-```
+```nginx
 error_log syslog:server=10.0.1.42 debug;
 access_log syslog:server=10.0.1.42,tag=nginx,severity=info geoproxy;
 ```
@@ -764,7 +764,7 @@ syslog 是用于在单台服务器或服务器集群中记录和收集日志的�
 
 使用 request 标识，并将标识写入到应用日志里：
 
-```
+```nginx
 log_format trace '$remote_addr - $remote_user [$time_local] '
                 '"$request" $status $body_bytes_sent '
                 '"$http_referer" "$http_user_agent" '
@@ -819,7 +819,7 @@ server {
 
 keepalive_requests 和 keepalive_timeout 指令允许变更单个连接的最大请求数和空闲连接的连接时长：
 
-```
+```nginx
 http {
     keepalive_requests 320;
     keepalive_timeout 300s;
@@ -843,7 +843,7 @@ keepalive_requests 默认为 100，keepalive_timeout 的默认值为 75 秒。
 
 在 upstream 会计指令中使用 keepalive 指令保持代理服务与被代理服务器连接以复用：
 
-```
+```nginx
 proxy_http_version 1.1;
 proxy_set_header Connection "";
 upstream backend {
@@ -869,7 +869,7 @@ keepalive 指令会为每个 NGINX worker 进程创建一个连接缓存，表�
 
 调整代理模块的缓存区设置，允许 NGINX 服务器将响应消息体写入内存缓冲区：
 
-```
+```nginx
 server {
     proxy_buffering on;
     proxy_buffer_size 8k;
@@ -895,7 +895,7 @@ proxy_buffering 值可以使 on 或 off，默认是 on。proxy_buffer_size 指�
 
 设置 access_log 的 buffer 和 flush 参数：
 
-```
+```nginx
 http {
     access_log /var/log/nginx/access.log main buffer=32k flush=1m;
 }
